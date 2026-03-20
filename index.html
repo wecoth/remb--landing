@@ -619,6 +619,9 @@
   }
 
   /* RESPONSIVE */
+  /* CYCLE MOBILE CARDS */
+  .cycle-card { display: none; }
+
   @media (max-width: 900px) {
     nav { padding: 16px 24px; }
     .nav-links { display: none; }
@@ -630,11 +633,76 @@
     .benefits-grid { grid-template-columns: 1fr; }
     .stack-grid { grid-template-columns: repeat(2, 1fr); }
     .forwhom-grid { grid-template-columns: 1fr; }
-    .cycle-row { grid-template-columns: 1fr; }
-    .cycle-cell.header { display: none; }
     footer { flex-direction: column; gap: 12px; text-align: center; }
     .comp-card { padding: 32px 24px; }
     .forwhom-col { padding: 32px 24px; }
+
+    /* Скрываем таблицу, показываем карточки */
+    .cycle-diagram { display: none; }
+    .cycle-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 40px; }
+    .cycle-card {
+      display: block;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .cycle-card-action {
+      background: var(--surface);
+      padding: 14px 20px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      color: var(--orange-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cycle-card-action::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 20px;
+      background: var(--orange);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .cycle-card-body {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .cycle-card-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cycle-card-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .cycle-card-value {
+      font-size: 14px;
+      color: var(--white);
+      font-weight: 400;
+      line-height: 1.5;
+    }
+    .cycle-card-value.muted { color: var(--muted); font-weight: 300; }
+    .cycle-card-value .tag {
+      display: inline-block;
+      background: var(--orange-dim);
+      border: 1px solid var(--orange-border);
+      color: var(--orange-light);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+      margin-left: 4px;
+    }
   }
 </style>
 </head>
@@ -828,6 +896,96 @@
       <div class="cycle-cell result">Актуальный дашборд с живыми данными</div>
     </div>
   </div>
+
+  <!-- МОБИЛЬНЫЕ КАРТОЧКИ -->
+  <div class="cycle-cards">
+
+    <div class="cycle-card">
+      <div class="cycle-card-action">Добавил объект</div>
+      <div class="cycle-card-body">
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что происходит в системе</div>
+          <div class="cycle-card-value">Запись в таблицу → создались папки Drive → сгенерировался токен клиента</div>
+        </div>
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-value muted">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cycle-card">
+      <div class="cycle-card-action">Сфоткал чек</div>
+      <div class="cycle-card-body">
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что происходит в системе</div>
+          <div class="cycle-card-value">Файл → папка Чеки <span class="tag">Drive</span><br>Строка → Транзакции <span class="tag">Sheets</span></div>
+        </div>
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-value muted">Чеки в дашборде</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cycle-card">
+      <div class="cycle-card-action">Отправил фото</div>
+      <div class="cycle-card-body">
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что происходит в системе</div>
+          <div class="cycle-card-value">Файл → папка Фото <span class="tag">Drive</span></div>
+        </div>
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-value muted">Фото появились в дашборде в реальном времени</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cycle-card">
+      <div class="cycle-card-action">Надиктовал расход</div>
+      <div class="cycle-card-body">
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что происходит в системе</div>
+          <div class="cycle-card-value">Whisper → текст → AI определил сумму → Транзакции <span class="tag">Sheets</span></div>
+        </div>
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-value muted">Обновился остаток</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cycle-card">
+      <div class="cycle-card-action">Клиент внёс аванс</div>
+      <div class="cycle-card-body">
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что происходит в системе</div>
+          <div class="cycle-card-value">Приход → Транзакции → пересчитался баланс</div>
+        </div>
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-value muted">Обновилась сумма «внесено»</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cycle-card">
+      <div class="cycle-card-action">Клиент открыл портал</div>
+      <div class="cycle-card-body">
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что происходит в системе</div>
+          <div class="cycle-card-value">Запрос → n8n → Sheets + Drive → JSON</div>
+        </div>
+        <div class="cycle-card-row">
+          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-value muted">Актуальный дашборд с живыми данными</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </section>
 
 <!-- BENEFITS -->
