@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Система управления объектами</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Geologica:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F0E0C;
+    --bg2: #161512;
+    --bg3: #1E1B17;
+    --surface: #252219;
+    --orange: #C4602A;
+    --orange-light: #E07848;
+    --orange-dim: rgba(196,96,42,0.12);
+    --orange-border: rgba(196,96,42,0.3);
+    --white: #F5F0E8;
+    --muted: #7A7368;
+    --muted2: #4A4540;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Geologica', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.35;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 2px; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(15,14,12,0.95) 0%, transparent 100%);
+    backdrop-filter: blur(8px);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: var(--white);
+  }
+  .nav-logo span { color: var(--orange); }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 70% 40%, rgba(196,96,42,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(196,96,42,0.04) 0%, transparent 70%);
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--orange-dim);
+    border: 1px solid var(--orange-border);
+    color: var(--orange-light);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .eyebrow-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 8vw, 110px);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero-title .accent { color: var(--orange); }
+  .hero-title .line2 {
+    display: block;
+    color: var(--muted);
+  }
+
+  .hero-desc {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-desc strong { color: var(--white); font-weight: 600; }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .stat-item {}
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 4px;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted2);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--orange), transparent);
+    animation: scrollPulse 2s infinite;
+  }
+  @keyframes scrollPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION BASE */
+  section {
+    padding: 100px 48px;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--orange);
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-bottom: 20px;
+  }
+  .section-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 520px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* PROBLEM */
+  .problem {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+    margin-top: 64px;
+  }
+  .problem-left .big-quote {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(24px, 3vw, 38px);
+    line-height: 1.2;
+    color: var(--white);
+    border-left: 3px solid var(--orange);
+    padding-left: 28px;
+    margin-bottom: 32px;
+  }
+  .problem-left .big-quote em {
+    color: var(--orange);
+    font-style: normal;
+  }
+  .problem-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .problem-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .problem-list li::before {
+    content: '—';
+    color: var(--orange);
+    flex-shrink: 0;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .problem-list li strong { color: var(--white); font-weight: 500; }
+
+  /* COMPONENTS */
+  .components {}
+  .components-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 64px;
+  }
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+  .comp-card {
+    background: var(--bg);
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .comp-card:hover { background: var(--bg3); }
+  .comp-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .comp-card:hover::before { transform: scaleX(1); }
+
+  .comp-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    line-height: 1;
+    color: var(--muted2);
+    margin-bottom: 24px;
+    transition: color 0.3s;
+  }
+  .comp-card:hover .comp-number { color: var(--orange-border); }
+  .comp-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+    color: var(--white);
+  }
+  .comp-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 24px;
+  }
+  .comp-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .comp-features li {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .comp-features li::before {
+    content: '›';
+    color: var(--orange);
+    font-size: 16px;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+
+  /* CYCLE */
+  .cycle {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .cycle-diagram {
+    margin-top: 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cycle-row {
+    display: grid;
+    grid-template-columns: 220px 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+  }
+  .cycle-cell {
+    background: var(--bg);
+    padding: 20px 28px;
+    font-size: 14px;
+  }
+  .cycle-cell.header {
+    background: var(--surface);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 28px;
+  }
+  .cycle-cell.actor {
+    background: var(--bg3);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--orange-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cycle-cell.action { color: var(--white); }
+  .cycle-cell.result {
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .cycle-cell .arrow {
+    color: var(--orange);
+    font-size: 18px;
+    margin-right: 8px;
+  }
+  .cycle-cell .tag {
+    display: inline-block;
+    background: var(--orange-dim);
+    border: 1px solid var(--orange-border);
+    color: var(--orange-light);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    margin-left: 6px;
+  }
+
+  /* BENEFITS */
+  .benefits {}
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 64px;
+  }
+  .benefit-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .benefit-card:hover {
+    border-color: var(--orange-border);
+    transform: translateY(-4px);
+  }
+  .benefit-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--orange);
+    line-height: 1;
+    margin-bottom: 16px;
+    opacity: 0.6;
+  }
+  .benefit-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+  .benefit-text {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* STACK */
+  .stack {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+  }
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin-top: 64px;
+  }
+  .stack-item {
+    background: var(--bg);
+    padding: 28px 32px;
+  }
+  .stack-role {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .stack-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  /* FOR WHOM */
+  .forwhom {
+    border-top: 1px solid var(--border);
+  }
+  .forwhom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    margin-top: 64px;
+  }
+  .forwhom-col {
+    background: var(--bg);
+    padding: 48px;
+  }
+  .forwhom-col.yes { border-top: 3px solid var(--orange); }
+  .forwhom-col.no { border-top: 3px solid var(--muted2); }
+  .forwhom-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+  }
+  .forwhom-col.yes .forwhom-title { color: var(--orange); }
+  .forwhom-col.no .forwhom-title { color: var(--muted); }
+  .forwhom-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .forwhom-list li {
+    font-size: 15px;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-weight: 300;
+    line-height: 1.5;
+  }
+  .forwhom-col.yes li::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
+  .forwhom-col.no li::before { content: '✕'; color: var(--muted2); font-weight: 700; flex-shrink: 0; }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    padding: 120px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(196,96,42,0.06) 0%, transparent 70%);
+  }
+  .cta-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 88px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
+  }
+  .cta-title span { color: var(--orange); }
+  .cta-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 440px;
+    margin: 0 auto 48px;
+    font-weight: 300;
+    line-height: 1.7;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.08em;
+  }
+  footer .logo span { color: var(--orange); }
+  footer p {
+    font-size: 13px;
+    color: var(--muted2);
+  }
+
+  /* FADE-IN ON SCROLL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    section { padding: 72px 24px; }
+    .hero { padding: 100px 24px 72px; }
+    .hero-stats { gap: 32px; flex-wrap: wrap; }
+    .problem-grid { grid-template-columns: 1fr; gap: 40px; }
+    .components-grid { grid-template-columns: 1fr; }
+    .benefits-grid { grid-template-columns: 1fr; }
+    .stack-grid { grid-template-columns: repeat(2, 1fr); }
+    .forwhom-grid { grid-template-columns: 1fr; }
+    .cycle-row { grid-template-columns: 1fr; }
+    .cycle-cell.header { display: none; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+    .comp-card { padding: 32px 24px; }
+    .forwhom-col { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">РемБот<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="#problem">Проблема</a></li>
+    <li><a href="#components">Система</a></li>
+    <li><a href="#cycle">Цикл</a></li>
+    <li><a href="#benefits">Выгоды</a></li>
+    <li><a href="#forwhom">Для кого</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      Инструмент для прорабов и руководителей
+    </div>
+    <h1 class="hero-title">
+      Управление<br>
+      <span class="accent">объектами</span><br>
+      <span class="line2">без Excel</span>
+    </h1>
+    <p class="hero-desc">
+      Telegram-бот который убирает <strong>всю операционную рутину</strong> — чеки, фото, деньги, отчёты клиенту — и собирает всё в одном месте в реальном времени.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">30 сек</div>
+        <div class="stat-label">вместо вечера с таблицей</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">потерянных чеков и фото</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">объектов одновременно</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="section-label">Проблема</div>
+  <h2 class="section-title">Откуда берётся хаос</h2>
+  <div class="problem-grid reveal">
+    <div class="problem-left">
+      <div class="big-quote">
+        «Вечером сел домой, открыл Excel — начал плюсовать, минусовать, <em>полтора часа ушло.</em> А чек где-то потерялся.»
+      </div>
+      <p style="font-size:15px; color:var(--muted); font-weight:300; line-height:1.8;">
+        Это знакомая картина для любого кто ведёт несколько объектов. Не потому что не умеешь работать — просто инструментов под эту задачу не было.
+      </p>
+    </div>
+    <div class="problem-right">
+      <ul class="problem-list">
+        <li><strong>Кассовые разрывы.</strong> Деньги заказчика воспринимаются как свои — остаток неизвестен до конца месяца</li>
+        <li><strong>Чеки теряются.</strong> В кармане, в телефоне, в разных чатах — нет единого места</li>
+        <li><strong>Фото россыпью.</strong> Сотни снимков в галерее без привязки к объекту и дате</li>
+        <li><strong>Клиент звонит.</strong> Вопрос «ну как там?» прерывает работу по несколько раз в день</li>
+        <li><strong>Контроль через обзвон.</strong> Чтобы знать статус всех объектов — нужно звонить каждому прорабу</li>
+        <li><strong>Рутина вечером.</strong> Вся фиксация откладывается на конец дня и превращается в работу</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- COMPONENTS -->
+<section class="components" id="components">
+  <div class="components-header">
+    <div>
+      <div class="section-label">Система</div>
+      <h2 class="section-title">Из чего состоит</h2>
+    </div>
+    <p class="section-sub" style="text-align:right;">4 компонента которые работают вместе как одно целое</p>
+  </div>
+
+  <div class="components-grid reveal">
+
+    <div class="comp-card">
+      <div class="comp-number">01</div>
+      <div class="comp-title">Рабочий бот прораба</div>
+      <div class="comp-desc">Основной инструмент. Работает прямо в Telegram — никаких дополнительных приложений. Управление через кнопки, можно говорить голосом.</div>
+      <ul class="comp-features">
+        <li>Добавить объект — написал адрес или надиктовал, AI разберёт</li>
+        <li>Фото чека → сумма автоматически в таблицу</li>
+        <li>Голосовое «потратил 4500 на смесь» → зафиксировалось</li>
+        <li>Фото с объекта → автоматически в папку Drive</li>
+        <li>Документы и чеки по нужному объекту</li>
+        <li>Журнал задач по каждому объекту</li>
+      </ul>
+    </div>
+
+    <div class="comp-card">
+      <div class="comp-number">02</div>
+      <div class="comp-title">Google Таблица</div>
+      <div class="comp-desc">База данных всей системы. Всё что делает прораб в боте — попадает сюда автоматически. Руководитель видит все объекты в одном месте.</div>
+      <ul class="comp-features">
+        <li>Все транзакции: расход/приход, дата, категория, объект</li>
+        <li>Остаток по каждому объекту в реальном времени</li>
+        <li>Сроки: рабочих дней прошло / осталось</li>
+        <li>Список прорабов с доступами</li>
+        <li>Журнал задач и авансов</li>
+      </ul>
+    </div>
+
+    <div class="comp-card">
+      <div class="comp-number">03</div>
+      <div class="comp-title">Google Drive</div>
+      <div class="comp-desc">Хранилище всех файлов. При создании объекта — три папки создаются автоматически. Прораб ничего не создаёт руками.</div>
+      <ul class="comp-features">
+        <li>📁 Фото — все снимки с объекта по датам</li>
+        <li>📁 Документы — сметы, проекты, договоры</li>
+        <li>📁 Чеки — все квитанции и чеки</li>
+        <li>Папки создаются автоматически при добавлении объекта</li>
+        <li>Доступны через дашборд клиента</li>
+      </ul>
+    </div>
+
+    <div class="comp-card">
+      <div class="comp-number">04</div>
+      <div class="comp-title">Клиентский портал</div>
+      <div class="comp-desc">Личный кабинет для заказчика внутри Telegram. Активация одним кодом — и клиент видит свой объект в реальном времени. Без приложений.</div>
+      <ul class="comp-features">
+        <li>Статус и прогресс-бар по времени</li>
+        <li>Сколько внесено денег, текущий баланс</li>
+        <li>История платежей</li>
+        <li>Свежие фото с объекта (обновляются автоматически)</li>
+        <li>Документы и чеки</li>
+        <li>Кнопка «Я оплатил» и переход в общий чат</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- CYCLE -->
+<section class="cycle" id="cycle">
+  <div class="section-label">Полный цикл</div>
+  <h2 class="section-title">Как всё связано</h2>
+  <p class="section-sub">От первого действия прораба до того что видит клиент на телефоне</p>
+
+  <div class="cycle-diagram reveal">
+    <div class="cycle-row">
+      <div class="cycle-cell header">Действие</div>
+      <div class="cycle-cell header">Что происходит в системе</div>
+      <div class="cycle-cell header">Что видит клиент</div>
+    </div>
+    <div class="cycle-row">
+      <div class="cycle-cell actor">Добавил объект</div>
+      <div class="cycle-cell action">Запись в таблицу → создались папки Drive → сгенерировался токен клиента</div>
+      <div class="cycle-cell result">—</div>
+    </div>
+    <div class="cycle-row">
+      <div class="cycle-cell actor">Сфоткал чек</div>
+      <div class="cycle-cell action">Файл → папка Чеки <span class="tag">Drive</span><br>Строка → Транзакции <span class="tag">Sheets</span></div>
+      <div class="cycle-cell result">Чеки в дашборде</div>
+    </div>
+    <div class="cycle-row">
+      <div class="cycle-cell actor">Отправил фото</div>
+      <div class="cycle-cell action">Файл → папка Фото <span class="tag">Drive</span></div>
+      <div class="cycle-cell result">Фото появились в дашборде в реальном времени</div>
+    </div>
+    <div class="cycle-row">
+      <div class="cycle-cell actor">Надиктовал расход</div>
+      <div class="cycle-cell action">Whisper → текст → AI определил сумму → Транзакции <span class="tag">Sheets</span></div>
+      <div class="cycle-cell result">Обновился остаток</div>
+    </div>
+    <div class="cycle-row">
+      <div class="cycle-cell actor">Клиент внёс аванс</div>
+      <div class="cycle-cell action">Приход → Транзакции → пересчитался баланс</div>
+      <div class="cycle-cell result">Обновилась сумма «внесено»</div>
+    </div>
+    <div class="cycle-row">
+      <div class="cycle-cell actor">Клиент открыл портал</div>
+      <div class="cycle-cell action">Запрос → n8n → Sheets + Drive → JSON</div>
+      <div class="cycle-cell result">Актуальный дашборд с живыми данными</div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits" id="benefits">
+  <div class="section-label">Выгоды</div>
+  <h2 class="section-title">Что это даёт</h2>
+
+  <div class="benefits-grid reveal">
+    <div class="benefit-card">
+      <div class="benefit-num">01</div>
+      <div class="benefit-title">30 секунд вместо вечера с таблицей</div>
+      <div class="benefit-text">Прораб фиксирует прямо на объекте — голосом или фото. Никаких записей «потом», никакой вечерней рутины.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">02</div>
+      <div class="benefit-title">Кассовый разрыв виден заранее</div>
+      <div class="benefit-text">Остаток по каждому объекту обновляется в реальном времени. Деньги заказчика — не «вроде есть», а конкретная цифра.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">03</div>
+      <div class="benefit-title">Ничего не теряется</div>
+      <div class="benefit-text">Чеки, фото, документы — в одном месте с первого дня. Через полгода можно поднять любой чек с любого объекта.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">04</div>
+      <div class="benefit-title">Клиент не звонит</div>
+      <div class="benefit-text">У заказчика есть дашборд — он сам видит прогресс, деньги и фото. Вопрос «ну как там?» отпадает сам собой.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">05</div>
+      <div class="benefit-title">Доверие через прозрачность</div>
+      <div class="benefit-text">Личный кабинет для клиента — это конкурентное преимущество при продаже. Прозрачность = спокойный клиент = нормальная работа.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">06</div>
+      <div class="benefit-title">Контроль без обзвона</div>
+      <div class="benefit-text">Руководитель видит все объекты в одной таблице. Статус, деньги, задачи — без звонков каждому прорабу.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">07</div>
+      <div class="benefit-title">Защита от споров</div>
+      <div class="benefit-text">Архив фото с датами и все чеки — всегда под рукой. Если клиент что-то оспаривает, доказательства уже есть.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section class="stack">
+  <div class="section-label">Технологии</div>
+  <h2 class="section-title">На чём работает</h2>
+  <div class="stack-grid reveal">
+    <div class="stack-item">
+      <div class="stack-role">Автоматизация</div>
+      <div class="stack-name">n8n</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">База данных</div>
+      <div class="stack-name">Google Sheets</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">Хранилище файлов</div>
+      <div class="stack-name">Google Drive</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">Интерфейс</div>
+      <div class="stack-name">Telegram Bot + Mini App</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">Распознавание речи</div>
+      <div class="stack-name">OpenAI Whisper</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">AI: намерение / чеки</div>
+      <div class="stack-name">OpenAI GPT-4o</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">Состояние сессий</div>
+      <div class="stack-name">NocoDB</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">Хостинг портала</div>
+      <div class="stack-name">Vercel</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOR WHOM -->
+<section class="forwhom" id="forwhom">
+  <div class="section-label">Аудитория</div>
+  <h2 class="section-title">Для кого подходит</h2>
+  <div class="forwhom-grid reveal">
+    <div class="forwhom-col yes">
+      <div class="forwhom-title">Подходит</div>
+      <ul class="forwhom-list">
+        <li>Ведёшь 2–3 объекта и больше одновременно</li>
+        <li>Есть прорабы которым нужно что-то фиксировать в поле</li>
+        <li>Клиенты регулярно спрашивают «ну как там?»</li>
+        <li>Хочешь видеть реальный остаток по деньгам не раз в неделю, а всегда</li>
+        <li>Чеки и фото хранятся в разных местах или теряются</li>
+        <li>Хочешь выглядеть профессиональнее перед заказчиком</li>
+      </ul>
+    </div>
+    <div class="forwhom-col no">
+      <div class="forwhom-title">Не подходит</div>
+      <ul class="forwhom-list">
+        <li>Один объект раз в полгода</li>
+        <li>Всё ведёт один человек и хватает блокнота</li>
+        <li>Нет желания менять привычные процессы</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2 class="cta-title">Готов попробовать?<br><span>Напиши — покажу.</span></h2>
+  <p class="cta-sub">Покажу живую демонстрацию как работает система на реальных объектах</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">РемБот<span>.</span></div>
+  <p>Система управления ремонтными объектами · 2025</p>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
