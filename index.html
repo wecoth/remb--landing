@@ -768,18 +768,18 @@
       <div class="big-quote">
         «Вечером сел домой, открыл Excel — начал плюсовать, минусовать, <em>полтора часа ушло.</em> А чек где-то потерялся.»
       </div>
-      <p style="font-size:15px; color:var(--muted); font-weight:300; line-height:1.8;">
-        Это знакомая картина для любого кто ведёт несколько объектов. Не потому что не умеешь работать — просто инструментов под эту задачу не было.
+      <p style="font-size:12px; color:var(--muted); font-weight:300; line-height:1.8;">
+        Это знакомая картина для любого кто ведёт несколько объектов. И это было нормально — просто инструментов под эту задачу не было.
       </p>
     </div>
     <div class="problem-right">
       <ul class="problem-list">
-        <li><strong>Кассовые разрывы.</strong> Деньги заказчика воспринимаются как свои — остаток неизвестен до конца месяца</li>
+        <li><strong>Кассовые разрывы.</strong> Деньги заказчика воспринимаются как свои — остаток неизвестен пока не посчитаешь</li>
         <li><strong>Чеки теряются.</strong> В кармане, в телефоне, в разных чатах — нет единого места</li>
         <li><strong>Фото россыпью.</strong> Сотни снимков в галерее без привязки к объекту и дате</li>
-        <li><strong>Клиент звонит.</strong> Вопрос «ну как там?» прерывает работу по несколько раз в день</li>
+        <li><strong>Клиент звонит.</strong> Вопрос «ну как там наши дела?» прерывает работу по несколько раз в день</li>
         <li><strong>Контроль через обзвон.</strong> Чтобы знать статус всех объектов — нужно звонить каждому прорабу</li>
-        <li><strong>Рутина вечером.</strong> Вся фиксация откладывается на конец дня и превращается в работу</li>
+        <li><strong>Рутина вечером.</strong> Вся фиксация откладывается на конец дня и превращается в работу после работы</li>
       </ul>
     </div>
   </div>
@@ -803,11 +803,11 @@
       <div class="comp-desc">Основной инструмент. Работает прямо в Telegram — никаких дополнительных приложений. Управление через кнопки, можно говорить голосом.</div>
       <ul class="comp-features">
         <li>Добавить объект — написал адрес или надиктовал, AI разберёт</li>
-        <li>Фото чека → сумма автоматически в таблицу</li>
-        <li>Голосовое «потратил 4500 на смесь» → зафиксировалось</li>
-        <li>Фото с объекта → автоматически в папку Drive</li>
-        <li>Документы и чеки по нужному объекту</li>
-        <li>Журнал задач по каждому объекту</li>
+        <li>Подгрузил фото чека → сумма автоматически записалась в таблицу</li>
+        <li>Отправил голосовое: «потратил 4500 на смесь» → зафиксировалось в таблицу</li>
+        <li>Подгрузил фото с объекта → автоматически в папку конкретного объекта на Drive</li>
+        <li>Документы и чеки по нужному объекту - в одном месте</li>
+        <li>Журнал задач по каждому объекту с напоминаниями для каждой задачи</li>
       </ul>
     </div>
 
@@ -819,7 +819,7 @@
         <li>Все транзакции: расход/приход, дата, категория, объект</li>
         <li>Остаток по каждому объекту в реальном времени</li>
         <li>Сроки: рабочих дней прошло / осталось</li>
-        <li>Список прорабов с доступами</li>
+        <li>Список прорабов и количеством их объектов</li>
         <li>Журнал задач и авансов</li>
       </ul>
     </div>
@@ -827,12 +827,11 @@
     <div class="comp-card">
       <div class="comp-number">03</div>
       <div class="comp-title">Google Drive</div>
-      <div class="comp-desc">Хранилище всех файлов. При создании объекта — три папки создаются автоматически. Прораб ничего не создаёт руками.</div>
+      <div class="comp-desc">Хранилище всех файлов. При создании объекта — автоматически создается вся система хранения. Прораб ничего не создаёт руками.</div>
       <ul class="comp-features">
         <li>📁 Фото — все снимки с объекта по датам</li>
         <li>📁 Документы — сметы, проекты, договоры</li>
         <li>📁 Чеки — все квитанции и чеки</li>
-        <li>Папки создаются автоматически при добавлении объекта</li>
         <li>Доступны через дашборд клиента</li>
       </ul>
     </div>
@@ -847,7 +846,7 @@
         <li>История платежей</li>
         <li>Свежие фото с объекта (обновляются автоматически)</li>
         <li>Документы и чеки</li>
-        <li>Кнопка «Я оплатил» и переход в общий чат</li>
+        <li>Кнопка «Внести средства» и переход в общий чат</li>
       </ul>
     </div>
 
@@ -863,38 +862,38 @@
   <div class="cycle-diagram reveal">
     <div class="cycle-row">
       <div class="cycle-cell header">Действие</div>
-      <div class="cycle-cell header">Что происходит в системе</div>
-      <div class="cycle-cell header">Что видит клиент</div>
+      <div class="cycle-cell header">Что происходит в системе:</div>
+      <div class="cycle-cell header">Что видит клиент:</div>
     </div>
     <div class="cycle-row">
       <div class="cycle-cell actor">Добавил объект</div>
-      <div class="cycle-cell action">Запись в таблицу → создались папки Drive → сгенерировался токен клиента</div>
+      <div class="cycle-cell action">Запись в таблицу → создались папки Drive → подготовился личный кабинет</div>
       <div class="cycle-cell result">—</div>
     </div>
     <div class="cycle-row">
-      <div class="cycle-cell actor">Сфоткал чек</div>
-      <div class="cycle-cell action">Файл → папка Чеки <span class="tag">Drive</span><br>Строка → Транзакции <span class="tag">Sheets</span></div>
-      <div class="cycle-cell result">Чеки в дашборде</div>
+      <div class="cycle-cell actor">Загрузил чек</div>
+      <div class="cycle-cell action">Файл → папка Чеки <span class="tag">Drive</span><br>Сумма → Транзакции <span class="tag">Sheets</span></div>
+      <div class="cycle-cell result">Чеки в личном кабинете</div>
     </div>
     <div class="cycle-row">
-      <div class="cycle-cell actor">Отправил фото</div>
+      <div class="cycle-cell actor">Загрузил фото</div>
       <div class="cycle-cell action">Файл → папка Фото <span class="tag">Drive</span></div>
-      <div class="cycle-cell result">Фото появились в дашборде в реальном времени</div>
+      <div class="cycle-cell result">Фото появились в личном кабинете</div>
     </div>
     <div class="cycle-row">
       <div class="cycle-cell actor">Надиктовал расход</div>
-      <div class="cycle-cell action">Whisper → текст → AI определил сумму → Транзакции <span class="tag">Sheets</span></div>
-      <div class="cycle-cell result">Обновился остаток</div>
+      <div class="cycle-cell action">AI определил сумму → внес транзакцию <span class="tag">Sheets</span></div>
+      <div class="cycle-cell result">Обновился остаток средств</div>
     </div>
     <div class="cycle-row">
       <div class="cycle-cell actor">Клиент внёс аванс</div>
-      <div class="cycle-cell action">Приход → Транзакции → пересчитался баланс</div>
+      <div class="cycle-cell action">Приход → Транзакции → Обновился баланс</div>
       <div class="cycle-cell result">Обновилась сумма «внесено»</div>
     </div>
     <div class="cycle-row">
-      <div class="cycle-cell actor">Клиент открыл портал</div>
-      <div class="cycle-cell action">Запрос → AI → Sheets + Drive → JSON</div>
-      <div class="cycle-cell result">Актуальный дашборд с живыми данными</div>
+      <div class="cycle-cell actor">Клиент открыл личный кабинет</div>
+      <div class="cycle-cell action">Запрос → AI → Sheets + Drive → сайт</div>
+      <div class="cycle-cell result">Систему и надежность. Он рад, что выбрал именно Вас.</div>
     </div>
   </div>
 
@@ -905,40 +904,40 @@
       <div class="cycle-card-action">Добавил объект</div>
       <div class="cycle-card-body">
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что происходит в системе</div>
-          <div class="cycle-card-value">Запись в таблицу → создались папки Drive → сгенерировался токен клиента</div>
+          <div class="cycle-card-label">Что происходит в системе:</div>
+          <div class="cycle-card-value">Запись в таблицу → создались папки Drive → подготовился личный кабинет</div>
         </div>
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-label">Что видит клиент:</div>
           <div class="cycle-card-value muted">—</div>
         </div>
       </div>
     </div>
 
     <div class="cycle-card">
-      <div class="cycle-card-action">Сфоткал чек</div>
+      <div class="cycle-card-action">Загрузил чек</div>
       <div class="cycle-card-body">
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что происходит в системе</div>
-          <div class="cycle-card-value">Файл → папка Чеки <span class="tag">Drive</span><br>Строка → Транзакции <span class="tag">Sheets</span></div>
+          <div class="cycle-card-label">Что происходит в системе:</div>
+          <div class="cycle-card-value">Файл → папка Чеки <span class="tag">Drive</span><br>Сумма → Транзакции <span class="tag">Sheets</span></div>
         </div>
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что видит клиент</div>
-          <div class="cycle-card-value muted">Чеки в дашборде</div>
+          <div class="cycle-card-label">Что видит клиент:</div>
+          <div class="cycle-card-value muted">Чеки в личном кабинете</div>
         </div>
       </div>
     </div>
 
     <div class="cycle-card">
-      <div class="cycle-card-action">Отправил фото</div>
+      <div class="cycle-card-action">Загрузил фото</div>
       <div class="cycle-card-body">
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что происходит в системе</div>
+          <div class="cycle-card-label">Что происходит в системе:</div>
           <div class="cycle-card-value">Файл → папка Фото <span class="tag">Drive</span></div>
         </div>
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что видит клиент</div>
-          <div class="cycle-card-value muted">Фото появились в дашборде в реальном времени</div>
+          <div class="cycle-card-label">Что видит клиент:</div>
+          <div class="cycle-card-value muted">Фото появились в личном кабинете</div>
         </div>
       </div>
     </div>
@@ -947,11 +946,11 @@
       <div class="cycle-card-action">Надиктовал расход</div>
       <div class="cycle-card-body">
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что происходит в системе</div>
-          <div class="cycle-card-value">Whisper → текст → AI определил сумму → Транзакции <span class="tag">Sheets</span></div>
+          <div class="cycle-card-label">Что происходит в системе:</div>
+          <div class="cycle-card-value">AI определил сумму → Транзакции <span class="tag">Sheets</span></div>
         </div>
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-label">Что видит клиент:</div>
           <div class="cycle-card-value muted">Обновился остаток</div>
         </div>
       </div>
@@ -961,26 +960,26 @@
       <div class="cycle-card-action">Клиент внёс аванс</div>
       <div class="cycle-card-body">
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что происходит в системе</div>
-          <div class="cycle-card-value">Приход → Транзакции → пересчитался баланс</div>
+          <div class="cycle-card-label">Что происходит в системе:</div>
+          <div class="cycle-card-value">Приход → Транзакции → Обновился баланс</div>
         </div>
         <div class="cycle-card-row">
-          <div class="cycle-card-label">Что видит клиент</div>
+          <div class="cycle-card-label">Что видит клиент:</div>
           <div class="cycle-card-value muted">Обновилась сумма «внесено»</div>
         </div>
       </div>
     </div>
 
     <div class="cycle-card">
-      <div class="cycle-card-action">Клиент открыл портал</div>
+      <div class="cycle-card-action">Клиент открыл личный кабинет</div>
       <div class="cycle-card-body">
         <div class="cycle-card-row">
           <div class="cycle-card-label">Что происходит в системе</div>
-          <div class="cycle-card-value">Запрос → AI → Sheets + Drive → JSON</div>
+          <div class="cycle-card-value">Запрос → AI → Sheets + Drive → сайт</div>
         </div>
         <div class="cycle-card-row">
           <div class="cycle-card-label">Что видит клиент</div>
-          <div class="cycle-card-value muted">Актуальный дашборд с живыми данными</div>
+          <div class="cycle-card-value muted">Систему и надежность. Он рад, что выбрал именно Вас.</div>
         </div>
       </div>
     </div>
@@ -997,7 +996,7 @@
   <div class="benefits-grid reveal">
     <div class="benefit-card">
       <div class="benefit-num">01</div>
-      <div class="benefit-title">30 секунд вместо вечера с таблицей</div>
+      <div class="benefit-title">30 секунд вместо целого вечера с таблицей</div>
       <div class="benefit-text">Прораб фиксирует прямо на объекте — голосом или фото. Никаких записей «потом», никакой вечерней рутины.</div>
     </div>
     <div class="benefit-card">
@@ -1013,7 +1012,7 @@
     <div class="benefit-card">
       <div class="benefit-num">04</div>
       <div class="benefit-title">Клиент не звонит</div>
-      <div class="benefit-text">У заказчика есть дашборд — он сам видит прогресс, деньги и фото. Вопрос «ну как там?» отпадает сам собой.</div>
+      <div class="benefit-text">У заказчика есть дашборд — он сам видит прогресс, деньги и фото. Вопрос «ну как там наши дела?» отпадает сам собой.</div>
     </div>
     <div class="benefit-card">
       <div class="benefit-num">05</div>
@@ -1101,7 +1100,7 @@
 <!-- FOOTER -->
 <footer>
   <div class="logo">RemB<span>.</span></div>
-  <p>Система управления ремонтными объектами · 2025</p>
+  <p>Система управления ремонтными объектами · 2026</p>
 </footer>
 
 <script>
